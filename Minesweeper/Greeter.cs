@@ -15,7 +15,7 @@ public class Greeter
 
     public string Introduce()
     {
-        return $"Hi! My name is {Name}.";
+        return $"Hi! My name is {Name}";
     }
 }
 
