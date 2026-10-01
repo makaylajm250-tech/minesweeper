@@ -36,5 +36,14 @@ namespace Minesweeper.Models
         /// </summary>
         public int NeighborBombs { get; set; }
 
+        ///<summary>
+        ///gets or set the cell as visisted
+        /// </summary>
+        public bool IsVisited { get; set; }
+
+        ///<summary>
+        ///get or sets the cell as flagged
+        /// </summary>
+        public bool IsFlagged { get; set; }
     }
 }

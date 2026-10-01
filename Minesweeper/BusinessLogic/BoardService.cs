@@ -1,6 +1,7 @@
 ﻿using Minesweeper.Models;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Minesweeper.BusinessLogic
@@ -21,6 +22,8 @@ namespace Minesweeper.BusinessLogic
                 {
                     board.Cells[row, column].IsBomb = false;
                     board.Cells[row, column].NeighborBombs = 0;
+                    board.Cells[row, column].IsVisited = false;
+                    board.Cells[row, column].IsFlagged = false;
                 }
             }
 
@@ -28,10 +31,10 @@ namespace Minesweeper.BusinessLogic
             while (bombLocations.Count < board.BombCount)
             {
                 int location = Random.Shared.Next(cellCount);
-
+            
                 bombLocations.Add(location);
             }
-
+            
             // Convert each location into a row and column.
             foreach (int location in bombLocations)
             {
@@ -93,5 +96,95 @@ namespace Minesweeper.BusinessLogic
                 }
             }
         }
-    }
+
+        public bool VisitCell(Board board, int row, int column)
+        {
+            if(board == null)
+            {
+                return false;
+            }
+
+            if (row < 0 || row >= board.Size || column < 0 || column >= board.Size)
+            {
+                return false;
+            }
+
+            Cell cell = board.Cells[row, column];
+
+            if(cell.IsVisited || cell.IsFlagged)
+            {
+                return false;
+            }
+
+            cell.IsVisited = true;
+            return true;
+
+        }
+
+        public bool ToggleFlag(Board board, int row, int column)
+        {
+            if(board == null)
+            {
+                return false;
+            }
+
+            if(row < 0 || row >= board.Size || column < 0 || column >= board.Size)
+            {
+                return false;
+            }
+
+            Cell cell = board.Cells[row, column];
+
+            if(cell.IsVisited)
+            {
+                return false;
+            }
+
+            cell.IsFlagged = !cell.IsFlagged;
+            return true;
+        }
+
+        public GameState DetermineGameState(Board board)
+        {
+            // is cell had boomb and is visited, return loss
+            if(board == null)
+            {
+                return GameState.InProgress;
+            }
+
+            for(int row = 0; row < board.Size; row++)
+            {
+                for(int column = 0; column < board.Size; column++)
+                {
+                    Cell cell = board.Cells[row, column];
+
+                    if(cell.IsBomb && cell.IsVisited)
+                    {
+                        return GameState.Lost;
+                    }
+                }          
+            }
+
+            //if cell is not visited and safe, return in progress
+            for(int row = 0; row < board.Size; row++)
+            {
+                for(int column = 0; column < board.Size; column++)
+                {
+                    Cell cell = board.Cells[row, column];
+
+                    if(!cell.IsBomb && !cell.IsVisited)
+                    {
+                        return GameState.InProgress;
+                    }
+                }
+            }
+
+            // if all cells visited and safe, return win
+            return GameState.Won;
+        }
+
+
+
+
+    }//end of class 
 }
