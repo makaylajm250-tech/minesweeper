@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Minesweeper.ConsoleApp/Minesweeper.ConsoleApp.csproj" />
+  <Project Path="Minesweeper.Tests/Minesweeper.Tests.csproj" Id="0578ee53-259b-4c5a-a613-65d13101ad60" />
   <Project Path="Minesweeper/Minesweeper.csproj" />
 </Solution>
