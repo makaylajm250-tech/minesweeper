@@ -1,6 +1,7 @@
 ﻿using Minesweeper.Models;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -43,6 +44,7 @@ namespace Minesweeper.BusinessLogic
 
                 board.Cells[row, column].IsBomb = true;
             }
+            CountNeighborBombs(board);
         }
 
         //calculate the # of bombs surrounding/adjacent to safe cells
@@ -116,7 +118,7 @@ namespace Minesweeper.BusinessLogic
                 return false;
             }
 
-            cell.IsVisited = true;
+         
             return true;
 
         }
@@ -183,8 +185,76 @@ namespace Minesweeper.BusinessLogic
             return GameState.Won;
         }
 
+        public void RevealCell(Board board, int row, int column)
+        {
+            //validate board 
+            if (board == null)
+            {
+                throw new ArgumentNullException(nameof(board));
+            }
+
+            //validaye the starting coordinates 
+            if (row < 0 || row >= board.Size || column < 0 || column >= board.Size)
+            {
+                return;
+            }
+
+            RevealCellRecursive(board, row, column);
+
+        }
+
+        /// <summry>
+        /// Recurively reveals cells using all eight neighboring directions
+        /// </summry>
+        public void RevealCellRecursive(Board board, int row, int column)
+        {
+            // Stop if the coordinates are outside the board.
+            if (row < 0 || row >= board.Size ||
+                column < 0 || column >= board.Size)
+            {
+                return;
+            }
+
+            Cell cell = board.Cells[row, column];
+
+            // Stop if the cell has already been visited or is flagged.
+            if (cell.IsVisited || cell.IsFlagged)
+            {
+                return;
+            }
+
+            // Mark the cell BEFORE making recursive calls.
+            cell.IsVisited = true;
+
+            // Stop at bombs and numbered safe cells.
+            if (cell.IsBomb || cell.NeighborBombs > 0)
+            {
+                return;
+            }
+
+            // Explore all eight neighboring cells.
+            for (int rowOffset = -1; rowOffset <= 1; rowOffset++)
+            {
+                for (int columnOffset = -1;
+                     columnOffset <= 1;
+                     columnOffset++)
+                {
+                    // Skip the current cell.
+                    if (rowOffset == 0 && columnOffset == 0)
+                    {
+                        continue;
+                    }
+
+                    RevealCellRecursive(
+                    board,
+                    row + rowOffset,
+                    column + columnOffset);
 
 
+                }
+            }
+
+        }
 
     }//end of class 
 }

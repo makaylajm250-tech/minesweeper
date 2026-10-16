@@ -1,6 +1,7 @@
 ﻿using Minesweeper;
 using Minesweeper.BusinessLogic;
 using Minesweeper.Models;
+using System.Data;
 
 namespace Minesweeper.ConsoleApp;
 
@@ -60,10 +61,15 @@ namespace Minesweeper.ConsoleApp;
                     row,
                     column);
 
-                if (!actionSuccessful)
+                if (actionSuccessful)
+                {
+                    boardService.RevealCell(board, row, column);
+                    
+                }
+                else
                 {
                     Console.WriteLine(
-                        "That cell cannot be visited. It may already be visited or flagged.");
+                    "That cell cannot be visited. It may already be visited or flagged.");
                 }
             }
             else
@@ -141,7 +147,13 @@ namespace Minesweeper.ConsoleApp;
 
                 char symbol = GetCellSymbol(cell);
 
-                Console.Write($" {symbol} |");
+                Console.ForegroundColor = GetSymbolColor(symbol);
+                Console.Write($" {symbol} ");
+                Console.ResetColor();
+
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("|");
+                Console.ResetColor();
             }
 
             Console.WriteLine();
@@ -161,7 +173,9 @@ namespace Minesweeper.ConsoleApp;
 
         for(int row = 0; row < board.Size; row++)
         {
+            Console.ForegroundColor = ConsoleColor.White;
             Console.Write("{0," + rowLabelWidth + "} |", row);
+            Console.ResetColor();
             
             for(int column = 0; column < board.Size; column++)
             {
@@ -179,6 +193,10 @@ namespace Minesweeper.ConsoleApp;
                 }
                 else if (cell.IsBomb)
                 {
+                    symbol = 'B';
+                }
+                else if(cell.NeighborBombs == 0)
+                {
                     symbol = '.';
                 }
                 else
@@ -186,7 +204,14 @@ namespace Minesweeper.ConsoleApp;
                     symbol = (char)('0' + cell.NeighborBombs);
                 }
 
-                Console.Write($" {symbol} |");
+                Console.ForegroundColor = GetSymbolColor(symbol);
+                Console.Write($" {symbol} ");
+                Console.ResetColor();
+
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("|");
+                Console.ResetColor();
+
             }
 
             Console.WriteLine();
@@ -194,6 +219,27 @@ namespace Minesweeper.ConsoleApp;
             PrintDivider(board.Size, rowLabelWidth);
         }
     }
+
+    private static ConsoleColor GetSymbolColor(char symbol)
+    {
+        return symbol switch
+        {
+            'B' => ConsoleColor.Red,       // Bomb
+            'F' => ConsoleColor.Magenta,   // Flag
+            '?' => ConsoleColor.White,     // ? cell
+            '.' => ConsoleColor.DarkGray,  // Empty cell
+            '1' => ConsoleColor.Green,
+            '2' => ConsoleColor.Blue,
+            '3' => ConsoleColor.DarkBlue,
+            '4' => ConsoleColor.Yellow,
+            '5' => ConsoleColor.DarkYellow,
+            '6' => ConsoleColor.DarkGreen,
+            '7' => ConsoleColor.DarkCyan,
+            '8' => ConsoleColor.Green,
+            _ => ConsoleColor.White
+        };
+    }
+
 
     private static void PrintColumnLabels(int size, int rowLabelWidth)
     {
@@ -325,10 +371,6 @@ namespace Minesweeper.ConsoleApp;
             Console.WriteLine("Invalid action. Enter V, F, or Q.");
         }
     }
-
-
-
-
 
 }//end of program 
 
