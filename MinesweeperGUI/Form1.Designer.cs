@@ -101,6 +101,8 @@
             Controls.Add(lblPlayMinesweeper);
             Name = "Form1";
             Text = "Start a new Game ";
+            FormClosing += Form1_FormClosing;
+            Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)TbSize).EndInit();
             ((System.ComponentModel.ISupportInitialize)TbBombs).EndInit();
             ResumeLayout(false);
