@@ -1,3 +1,6 @@
+using Minesweeper.BusinessLogic;
+using Minesweeper.DataAccess;
+
 namespace MinesweeperGUI
 {
     internal static class Program
@@ -11,7 +14,11 @@ namespace MinesweeperGUI
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            Application.Run(new Form1());
+
+            GameStatFileStore fileStore = new GameStatFileStore();
+            GameHistoryService history = new GameHistoryService(fileStore);
+
+            Application.Run(new Form1(history));
         }
     }
 }

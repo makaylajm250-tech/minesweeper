@@ -28,18 +28,22 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             pnlBoard = new Panel();
+            btnHistory = new Button();
             btnReveal = new Button();
             btnRestart = new Button();
             btnFlagMode = new Button();
             lblGameStatus = new Label();
             tlpBoard = new TableLayoutPanel();
+            tmrGame = new System.Windows.Forms.Timer(components);
             pnlBoard.SuspendLayout();
             SuspendLayout();
             // 
             // pnlBoard
             // 
             pnlBoard.AutoScroll = true;
+            pnlBoard.Controls.Add(btnHistory);
             pnlBoard.Controls.Add(btnReveal);
             pnlBoard.Controls.Add(btnRestart);
             pnlBoard.Controls.Add(btnFlagMode);
@@ -50,6 +54,17 @@
             pnlBoard.Size = new Size(993, 973);
             pnlBoard.TabIndex = 0;
             pnlBoard.Click += BtnReveal_Click;
+            // 
+            // btnHistory
+            // 
+            btnHistory.Enabled = false;
+            btnHistory.Location = new Point(541, 526);
+            btnHistory.Name = "btnHistory";
+            btnHistory.Size = new Size(150, 46);
+            btnHistory.TabIndex = 4;
+            btnHistory.Text = "History";
+            btnHistory.UseVisualStyleBackColor = true;
+            btnHistory.Click += btnHistory_Click;
             // 
             // btnReveal
             // 
@@ -139,5 +154,7 @@
         private Button btnRestart;
         private Button btnFlagMode;
         private Button btnReveal;
+        private System.Windows.Forms.Timer tmrGame;
+        private Button btnHistory;
     }
 }

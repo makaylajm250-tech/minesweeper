@@ -4,24 +4,31 @@ using System.Drawing;
 using System.Windows.Forms;
 using Minesweeper.BusinessLogic;
 using Minesweeper.Models;
+using System.Diagnostics;
 
 namespace MinesweeperGUI
 {
     public partial class GameForm : Form
     {
+
+        private readonly GameHistoryService _history;
+        private readonly BoardService game = new BoardService();
         private Board _board;
         private readonly BoardService _boardService;
         private int _selectedRow = -1;
         private int _selectedColumn = -1;
 
         private Button[,] _cellButtons;
+        private readonly Stopwatch _stopwatch = new Stopwatch();
+        private bool _completionHandled = false;
 
-        public GameForm(Board board, BoardService boardService)
+        public GameForm(Board board, BoardService boardService, GameHistoryService history)
         {
             InitializeComponent();
-
+            _history = history;
             _board = board;
             _boardService = boardService;
+            _stopwatch.Start();
 
             CreateBoardButtons();
 
@@ -166,6 +173,8 @@ namespace MinesweeperGUI
             {
                 RevealAllBombs();
 
+                btnHistory.Enabled = true;
+
                 lblGameStatus.Text = "Game Over! You Lost!";
 
                 MessageBox.Show(
@@ -176,13 +185,24 @@ namespace MinesweeperGUI
             }
             else if (state == GameState.Won)
             {
+                if (_completionHandled)
+                    return;
+
+                _completionHandled = true;
+                _stopwatch.Stop();
+
+                btnHistory.Enabled = true;
+
                 lblGameStatus.Text = "Congratulations! You Won!";
+
+                SetBoardEnabled(false);
 
                 MessageBox.Show(
                     "Congratulations! You won!",
                     "Minesweeper");
 
-                SetBoardEnabled(false);
+                // Capture the winning game and open history.
+                ShowCompletedRound();
             }
         }
 
@@ -251,9 +271,13 @@ namespace MinesweeperGUI
             }
         }
 
-        private void BtnRestart_Click(object sender, EventArgs e)
+        private void BtnRestart_Click(object? sender, EventArgs e)
         {
             _board = new Board(_board.Size, _board.BombCount);
+
+            _completionHandled = false;
+            _stopwatch.Reset();
+            _stopwatch.Start();
 
             _boardService.SetupBombs(_board);
 
@@ -304,6 +328,44 @@ namespace MinesweeperGUI
 
             UpdateBoardDisplay();
             HighlightSelectedCell();
+        }
+
+        private void ShowCompletedRound()
+        {
+            // Capture the completed game before asking for the player's name.
+            double completedSeconds = _stopwatch.Elapsed.TotalSeconds;
+
+            // Faster wins receive higher scores.
+            int completedScore = Math.Max(
+                0,
+                10000 - (int)Math.Round(completedSeconds * 10));
+
+            DateTime completedAt = DateTime.Now;
+
+            using FrmPlayerName nameForm = new FrmPlayerName();
+
+            if (nameForm.ShowDialog(this) != DialogResult.OK)
+            {
+                // Do not record a result if the player cancels.
+                return;
+            }
+
+            _history.AddResult(
+                nameForm.PlayerName,
+                completedScore,
+                completedSeconds,
+                completedAt);
+
+            using FrmHistory historyForm = new FrmHistory(_history);
+
+            historyForm.ShowDialog(this);
+        }
+
+        private void btnHistory_Click(object sender, EventArgs e)
+        {
+            using FrmHistory historyForm = new FrmHistory(_history);
+            historyForm.ShowDialog(this);
+            btnHistory.Enabled = false;
         }
     }
 }
